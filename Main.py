@@ -53,11 +53,15 @@ def save_hotkeys():
             f.write(f"{key_combination}:{action}\n")
 
 def load_hotkeys():
+    """Loads hotkeys from a file."""
     try:
         with open("hotkeys.txt", "r") as f:
             for line in f:
-                key_combination, action = line.strip().split(":")
-                custom_hotkeys[key_combination] = action
+                try:
+                    key_combination, action = line.strip().split(":", 1)  # Split only at the first colon
+                    custom_hotkeys[key_combination] = action
+                except ValueError:
+                    print(f"Skipping invalid line: {line.strip()}")  # Handle lines without colons
         update_listbox()
 
         # Register hotkeys after loading
@@ -95,36 +99,49 @@ def register_hotkeys():
 # Create the main window
 window = tk.Tk()
 window.title("Hotkey Customizer")
+window.configure(bg="#333333")  # Set dark gray background
+
+# Configure style for rounded corners and larger elements
+style = ttk.Style()
+style.configure("TButton", padding=10, font=("TkDefaultFont", 12), borderwidth=0, relief="flat")
+style.configure("TLabel", background="#333333", foreground="white", font=("TkDefaultFont", 12))
+style.configure("TEntry", font=("TkDefaultFont", 12), padding=5)
+style.configure("TListbox", font=("TkDefaultFont", 12), background="#444444", foreground="white")
 
 # Key combination entry
 key_label = ttk.Label(window, text="Key Combination:")
-key_label.grid(row=0, column=0, padx=5, pady=5)
+key_label.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
 key_entry = ttk.Entry(window)
-key_entry.grid(row=0, column=1, padx=5, pady=5)
+key_entry.grid(row=0, column=1, padx=10, pady=10, sticky="ew")
 
 # Action entry
 action_label = ttk.Label(window, text="Action (e.g., open path/to/app.exe):")
-action_label.grid(row=1, column=0, padx=5, pady=5)
+action_label.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
 action_entry = ttk.Entry(window)
-action_entry.grid(row=1, column=1, padx=5, pady=5)
+action_entry.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
 
 # Add button
-add_button = ttk.Button(window, text="Add Hotkey", command=add_hotkey)
+add_button = ttk.Button(window, text="Add Hotkey", command=add_hotkey, style="TButton")
 add_button.grid(row=2, column=0, columnspan=2, pady=10)
 
 # Listbox to display hotkeys
-listbox = tk.Listbox(window, width=50)
-listbox.grid(row=3, column=0, columnspan=2, padx=5, pady=5)
+listbox = tk.Listbox(window, width=50, height=10, bg="#444444", fg="white", font=("TkDefaultFont", 12))
+listbox.grid(row=3, column=0, columnspan=2, padx=10, pady=10)
 
 # Remove button
-remove_button = ttk.Button(window, text="Remove Hotkey", command=remove_hotkey)
+remove_button = ttk.Button(window, text="Remove Hotkey", command=remove_hotkey, style="TButton")
 remove_button.grid(row=4, column=0, columnspan=2, pady=10)
 
 # Save/Load buttons
-save_button = ttk.Button(window, text="Save Hotkeys", command=save_hotkeys)
-save_button.grid(row=5, column=0, pady=5)
-load_button = ttk.Button(window, text="Load Hotkeys", command=load_hotkeys)
-load_button.grid(row=5, column=1, pady=5)
+save_button = ttk.Button(window, text="Save Hotkeys", command=save_hotkeys, style="TButton")
+save_button.grid(row=5, column=0, pady=10)
+load_button = ttk.Button(window, text="Load Hotkeys", command=load_hotkeys, style="TButton")
+load_button.grid(row=5, column=1, pady=10)
+
+# Configure grid weights for resizing
+window.columnconfigure(0, weight=1)
+window.columnconfigure(1, weight=1)
+window.rowconfigure(3, weight=1)  # Allow listbox to expand vertically
 
 # Load hotkeys on startup
 load_hotkeys()
